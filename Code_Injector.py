@@ -14,7 +14,7 @@ injection_code = "<script>alert('skv1910');</script>"
 
 def get_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--machine", dest="machine", help="Press -h to display Help.")
+    parser.add_argument("-m", "--machine", dest="machine", help="Choose Target Machine (remote or local)")
     args = parser.parse_args()
     return args
 
