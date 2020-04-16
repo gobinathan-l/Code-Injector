@@ -17,6 +17,7 @@ To Clone the Code Injector Repository..
 To install Dependencies..
 
 ```sh
+# apt-get install build-essential python-dev libnetfilter-queue-dev
 # pip install -r requirements.txt
 ```
 
