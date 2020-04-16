@@ -28,6 +28,8 @@ To Execute the Script..
 Enter the Script to be Injected >> <script>alert('injected code');</script>
 ```
 
+In case of HTTP versions other than HTTP/1.1, The Script doesn't perform HTTP Downgrade Attacks. If you want the script to work for other HTTP version, replace the "HTTP/1.1" (line 43) in the Script with your HTTP Version.
+
 ### About Author
 I am Gobinathan, a CyberSecurity Enthusiast. To reach out to me..<br>
 [GitHub](https://github.com/gobinathan-l/), [Linkedin](https://in.linkedin.com/in/gobinathan-l), [Twitter](https://twitter.com/gobinathan_l)
